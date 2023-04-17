@@ -1,3 +1,4 @@
+
 // Chaos_Game.cpp : This file contains the 'main' function. Program execution begins and ends there.
 //Eduardo and Jordan
 //Need text to user, user inut, (4), vector/array to hold point, vm,while,draw,
@@ -11,6 +12,7 @@
 using namespace sf;
 using namespace std;
 
+
 int main()
 {
 
@@ -23,7 +25,7 @@ int main()
     Text text,dotText;
 
     Font font;
-    font.loadFromFile("fonts/KOMIKAP_.ttf");
+    font.loadFromFile("fonts/KOMIKAP_.ttf");        
     text.setFont(font);
     text.setCharacterSize(25);
     text.setPosition(10,10);
@@ -41,21 +43,29 @@ int main()
     dot2 = dot1;
     dot3 = dot1;
     dot4 = dot1;
-    vector<RectangleShape>;
-
+    vector<RectangleShape> dotList;
+    int rng; //rng number
 
     //control input;
     bool acceptInput = true;
+
+    
+    Vector2f temp,temp2;
+
+    //COLORS!!!//was experimentin with values, var does not == color
+    Color pink(255, 0, 0);
+    Color blue(0, 0, 255);
+    Color green(0, 255, 0);
 
 
 
     while (window.isOpen())
 
     {
-        
-        int x;
-        int y;
-        //HANDLE PLAYER INPUT--------ESC
+        //Coordinates
+        int x,y;
+      
+        //TO CLOSE
         Event event;
         while (window.pollEvent(event))
         {
@@ -64,29 +74,29 @@ int main()
                 window.close();
             }
         }
-
+        //ESC TO CLOSE
         if (Keyboard::isKeyPressed(Keyboard::Escape))
         {
             window.close();
         }
 
         /***************************************************************************
-        * First three inputs
+        * First three inputs + 1 to start
         ***************************************************************************/
 
         if (acceptInput && dotCounter==0)//For the first click, now need 2 more + 1;
         {
-            if (event.type == Event::MouseButtonPressed)
+            if (event.type == Event::MouseButtonPressed)//CLICK
             {
-                    x = event.mouseButton.x;
-                    y = event.mouseButton.y;
-                    dot1.setPosition(x, y);
-                    inputCounter++;
+                    x = event.mouseButton.x;        //GET X
+                    y = event.mouseButton.y;        //GET Y
+                    dot1.setPosition(x, y);         //SET DOT X,Y
+                    inputCounter++;                 //INCREMENT
                     dotCounter++;
-                    acceptInput = false;              
+                    acceptInput = false;            //AVOID 100 MPH
             }
         }
-        if (acceptInput && dotCounter == 1)
+        if (acceptInput && dotCounter == 1)        //AGAIN2
         {
             if (event.type == Event::MouseButtonPressed)
             {
@@ -98,7 +108,7 @@ int main()
                 acceptInput = false;
             }
         }
-        if (acceptInput && dotCounter == 2)
+        if (acceptInput && dotCounter == 2)         //AGAIN3
         {
             if (event.type == Event::MouseButtonPressed)
             {
@@ -111,11 +121,8 @@ int main()
             }
         }
 
-        /***************************************************************************
-         last input
-         ***************************************************************************/
-        if (acceptInput && dotCounter == 3)
-        {
+        if (acceptInput && dotCounter == 3)         //AGAIN4 AND LAST
+        {   
             if (event.type == Event::MouseButtonPressed)
             {
                 x = event.mouseButton.x;
@@ -124,18 +131,70 @@ int main()
                 inputCounter++;
                 dotCounter++;
                 acceptInput = false;
+                dotList.push_back(dot1);
+                dotList.push_back(dot2);
+                dotList.push_back(dot3);
+                dotList.push_back(dot4);
+            }
+        }
+
+        /***************************************************************************
+                 Chaos part
+         ***************************************************************************/
+        if (dotCounter >= 4)
+        {
+            RectangleShape* ndot = new RectangleShape;          //MAKES NEW EA FRAME
+            ndot->setSize(Vector2f(1,1));
+            //ndot->setFillColor(Color::White);
+            rng = rand() % (3);                                 //RANDOM 0,1,2
+            if (rng == 0)
+            {
+                ndot->setFillColor(pink);
+                temp = dot1.getPosition();                      //GET FIRST DOT X AND Y
+                temp2 = dotList.at(dotList.size() - 1).getPosition();//GET LAST DOT X AND Y
+                temp.x = temp.x + temp2.x;                           ///////////////////////////
+                temp.x = temp.x / 2;
+                temp.y = temp.y + temp2.y;
+                temp.y = temp.y / 2;                                //GET MIDPOINT^^/////////////
+                ndot->setPosition(temp);                            //MIDPOINT IS NEW DOT, BACK AT THE LINE
+                dotList.push_back(*ndot);
+                dotCounter++;
+
+
+            }
+            else if (rng == 1)
+            {
+                ndot->setFillColor(blue);
+                temp = dot2.getPosition();
+                temp2 = dotList.at(dotList.size() - 1).getPosition();
+                temp.x = temp.x + temp2.x;
+                temp.x = temp.x / 2;
+                temp.y = temp.y + temp2.y;
+                temp.y = temp.y / 2;
+                ndot->setPosition(temp);
+                dotList.push_back(*ndot);
+                dotCounter++;
+
+            }
+            else
+            {   
+                ndot->setFillColor(green);
+                temp = dot3.getPosition();
+                temp2 = dotList.at(dotList.size() - 1).getPosition();
+                temp.x = temp.x + temp2.x;
+                temp.x = temp.x / 2;
+                temp.y = temp.y + temp2.y;
+                temp.y = temp.y / 2;
+                ndot->setPosition(temp);
+                dotList.push_back(*ndot);
+                dotCounter++;
+
             }
         }
 
 
-
-
-
-
-
-
-
-        if (event.type == Event::MouseButtonReleased)//makes it so theres no 100 clicks per second
+        //makes it so theres no 100 clicks per second
+        if (event.type == Event::MouseButtonReleased)
         {
             acceptInput = true;
         }
@@ -162,49 +221,19 @@ int main()
         window.clear();
         window.draw(text);
         window.draw(dotText);
+        for (int i = 3;i < dotList.size();i++)      //NOTE i=3, case window already drawing dots1-4 down there
+        {
+            window.draw(dotList.at(i));
+        }
         window.draw(dot1);
         window.draw(dot2);
         window.draw(dot3);
+        window.draw(dot4);
         window.display();
 
 
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
