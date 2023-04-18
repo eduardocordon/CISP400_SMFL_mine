@@ -12,6 +12,10 @@
 using namespace sf;
 using namespace std;
 
+float lerp(float a, float b, float f)
+{
+    return a + f * (b - a);
+}
 
 int main()
 {
@@ -38,19 +42,26 @@ int main()
     
     int rng;                                        //rng number
 
-    bool acceptInput = true;                       //control input;
+    bool acceptInputMouse = true;                       //control input;
    
     Vector2f temp,temp2;    
 
-    Color pink(255, 0, 0);                          //COLORS!!!//was experimentin with values, var does not == color
+    Color red(255, 0, 0);
     Color blue(0, 0, 255);
     Color green(0, 255, 0);
+    Color yellow(255, 255, 0);
+    Color pink(255, 0, 255);
+    Color orange(255, 128, 0);
+
+    bool isTriangle = false;                        //List for input;
+    bool isPent = false;
+    bool isHex = false;
 
 
 
     while (window.isOpen())                                         //Frame loop starts
     {
-        int x,y;                                                    //Coordinates for points
+        float x,y;                                                    //Coordinates for points
       
         Event event;
         while (window.pollEvent(event))
@@ -65,12 +76,27 @@ int main()
         {
             window.close();
         }
+        if (Keyboard::isKeyPressed(Keyboard::Q))
+        {
+            isTriangle = true;
+
+        }
+        if (Keyboard::isKeyPressed(Keyboard::W))
+        {
+            isPent = true;
+
+        }
+        if (Keyboard::isKeyPressed(Keyboard::E))
+        {
+            isHex = true;
+
+        }
 
         /***************************************************************************
          First 3 inputs + 1 to start
         ***************************************************************************/
 
-        if (acceptInput && dotCounter<5)                            //Loops to get click input 4 times
+        if (acceptInputMouse && dotCounter<5 && isTriangle == true && isPent == false && isHex == false)                            //Loops to get click input 4 times
         {
             if (event.type == Event::MouseButtonPressed)
             {
@@ -80,44 +106,69 @@ int main()
                 *ndot = dot1;
                 ndot->setPosition(x, y);                            //SET DOT X,Y                              
                 dotCounter++;                                       //INCREMENT
-                acceptInput = false;                                //AVOID 100 MPH
+                acceptInputMouse = false;                                //AVOID 100 MPH
                 dotList.push_back(*ndot);                           //Push in vector
             }
         }
-        if (acceptInput && dotCounter > 3000)                       //RESET PART
+
+        if (acceptInputMouse && dotCounter < 7 && isTriangle == false && isPent == true && isHex == false)                            //FOR pent
+        {
+            if (event.type == Event::MouseButtonPressed)
+            {
+                RectangleShape* ndot = new RectangleShape;          //new dot
+                x = event.mouseButton.x;                            //GET X THEN Y
+                y = event.mouseButton.y;
+                *ndot = dot1;
+                ndot->setPosition(x, y);                            //SET DOT X,Y                              
+                dotCounter++;                                       //INCREMENT
+                acceptInputMouse = false;                                //AVOID 100 MPH
+                dotList.push_back(*ndot);                           //Push in vector
+            }
+        }
+        if (acceptInputMouse && dotCounter < 8 && isTriangle == false && isPent == false && isHex == true)                            //FOR HEX
+        {
+            if (event.type == Event::MouseButtonPressed)
+            {
+                RectangleShape* ndot = new RectangleShape;          //new dot
+                x = event.mouseButton.x;                            //GET X THEN Y
+                y = event.mouseButton.y;
+                *ndot = dot1;
+                ndot->setPosition(x, y);                            //SET DOT X,Y                              
+                dotCounter++;                                       //INCREMENT
+                acceptInputMouse = false;                                //AVOID 100 MPH
+                dotList.push_back(*ndot);                           //Push in vector
+            }
+        }
+        if (acceptInputMouse && dotCounter > 3000)                       //RESET PART
         {                                                           //RESET if COUNTER>3000
             if (event.type == Event::MouseButtonPressed)
             {
-                dotList.clear();                                    //vector emptied
-                dotCounter = 0;                                     //counter reset
-                RectangleShape* ndot = new RectangleShape;          //rest of block is same as block above
-                x = event.mouseButton.x;        
-                y = event.mouseButton.y;       
-                *ndot = dot1;
-                ndot->setPosition(x, y);                                    
-                dotCounter++;                   
-                acceptInput = false;            
-                dotList.push_back(*ndot);
+                dotList.clear();                                   
+                dotCounter = 0;
+                isTriangle = false;                       
+                isPent = false;
+                isHex = false;
+              
             }
         }
         /***************************************************************************
                  Chaos part
          ***************************************************************************/
-        if (dotCounter >= 4)
+        if (dotCounter >= 4 && isTriangle == true && isPent == false && isHex == false)
         {
             RectangleShape* ndot = new RectangleShape;                  //MAKES NEW EA FRAME
-            ndot->setSize(Vector2f(1,1));
+            ndot->setSize(Vector2f(1, 1));
             //ndot->setFillColor(Color::White);
             rng = rand() % (3);                                         //RANDOM 0,1,2
             if (rng == 0)
             {
-                ndot->setFillColor(pink);
+                ndot->setFillColor(red);
                 temp = dotList.at(0).getPosition();                     //GET FIRST DOT X AND Y
                 temp2 = dotList.at(dotList.size() - 1).getPosition();   //GET LAST DOT X AND Y
                 temp.x = temp.x + temp2.x;                              ///////////////////////////
                 temp.x = temp.x / 2;
                 temp.y = temp.y + temp2.y;
-                temp.y = temp.y / 2;                                    
+                temp.y = temp.y / 2;
                 ndot->setPosition(temp);                                //GET MIDPOINT^^/////////////
                 dotList.push_back(*ndot);                               //MIDPOINT IS NEW DOT, BACK AT THE LINE
                 dotCounter++;
@@ -136,7 +187,7 @@ int main()
                 dotCounter++;
             }
             else
-            {   
+            {
                 ndot->setFillColor(green);
                 temp = dotList.at(2).getPosition();
                 temp2 = dotList.at(dotList.size() - 1).getPosition();
@@ -148,18 +199,193 @@ int main()
                 dotList.push_back(*ndot);
                 dotCounter++;
             }
+        
         }
+        if (dotCounter >= 6 && isTriangle == false && isPent == true && isHex == false)
+        {
+                RectangleShape* ndot = new RectangleShape;          //MAKES NEW EA FRAME
+                ndot->setSize(Vector2f(1, 1));
+                //ndot->setFillColor(Color::White);
+                rng = rand() % (5);                                 //RANDOM 0,1,2
+                if (rng == 0)
+                {
+                    ndot->setFillColor(pink);
+                    temp = dotList.at(0).getPosition();;                      //GET FIRST DOT X AND Y
+                    temp2 = dotList.at(dotList.size() - 1).getPosition();//GET LAST DOT X AND Y
+                    temp.x = lerp(temp.x, temp2.x, 0.33);                           ///////////////////////////
+                    temp.y = lerp(temp.y, temp2.y, 0.33);                                   //GET MIDPOINT^^/////////////
+                    ndot->setPosition(temp);                            //MIDPOINT IS NEW DOT, BACK AT THE LINE
+                    dotList.push_back(*ndot);
+                    dotCounter++;
+
+
+                }
+                else if (rng == 1)
+                {
+                    ndot->setFillColor(blue);
+                    temp = dotList.at(1).getPosition();
+                    temp2 = dotList.at(dotList.size() - 1).getPosition();
+                    temp.x = lerp(temp.x, temp2.x, 0.33);                           ///////////////////////////
+                    temp.y = lerp(temp.y, temp2.y, 0.33);
+                    ndot->setPosition(temp);
+                    dotList.push_back(*ndot);
+                    dotCounter++;
+
+                }
+                else if (rng == 2)
+                {
+                    ndot->setFillColor(red);
+                    temp = dotList.at(2).getPosition();
+                    temp2 = dotList.at(dotList.size() - 1).getPosition();
+                    temp.x = lerp(temp.x, temp2.x, 0.33);                           ///////////////////////////
+                    temp.y = lerp(temp.y, temp2.y, 0.33);
+                    ndot->setPosition(temp);
+                    dotList.push_back(*ndot);
+                    dotCounter++;
+
+                }
+                else if (rng == 3)
+                {
+                    ndot->setFillColor(yellow);
+                    temp = dotList.at(3).getPosition();
+                    temp2 = dotList.at(dotList.size() - 1).getPosition();
+                    temp.x = lerp(temp.x, temp2.x, 0.33);                           ///////////////////////////
+                    temp.y = lerp(temp.y, temp2.y, 0.33);
+                    ndot->setPosition(temp);
+                    dotList.push_back(*ndot);
+                    dotCounter++;
+
+                }
+                else if (rng == 4)
+                {
+                    ndot->setFillColor(green);
+                    temp = dotList.at(4).getPosition();
+                    temp2 = dotList.at(dotList.size() - 1).getPosition();
+                    temp.x = lerp(temp.x, temp2.x, 0.33);                           ///////////////////////////
+                    temp.y = lerp(temp.y, temp2.y, 0.33);
+                    ndot->setPosition(temp);
+                    dotList.push_back(*ndot);
+                    dotCounter++;
+
+                }
+                else
+                {
+                    ndot->setFillColor(orange);
+                    temp = dotList.at(5).getPosition();
+                    temp2 = dotList.at(dotList.size() - 1).getPosition();
+                    temp.x = lerp(temp.x, temp2.x, 0.33);                           ///////////////////////////
+                    temp.y = lerp(temp.y, temp2.y, 0.33);
+                    ndot->setPosition(temp);
+                    dotList.push_back(*ndot);
+                    dotCounter++;
+
+                }
+            }
+        if (dotCounter >= 7 && isTriangle == false && isPent == false && isHex == true)
+        {
+            RectangleShape* ndot = new RectangleShape;          //MAKES NEW EA FRAME
+            ndot->setSize(Vector2f(1, 1));
+            //ndot->setFillColor(Color::White);
+            rng = rand() % (6);                                 //RANDOM 0,1,2
+            if (rng == 0)
+            {
+                ndot->setFillColor(pink);
+                temp = dotList.at(0).getPosition();;                      //GET FIRST DOT X AND Y
+                temp2 = dotList.at(dotList.size() - 1).getPosition();//GET LAST DOT X AND Y
+                temp.x = lerp(temp.x, temp2.x, 0.33);                           ///////////////////////////
+                temp.y = lerp(temp.y, temp2.y, 0.33);                                   //GET MIDPOINT^^/////////////
+                ndot->setPosition(temp);                            //MIDPOINT IS NEW DOT, BACK AT THE LINE
+                dotList.push_back(*ndot);
+                dotCounter++;
+
+
+            }
+            else if (rng == 1)
+            {
+                ndot->setFillColor(blue);
+                temp = dotList.at(1).getPosition();
+                temp2 = dotList.at(dotList.size() - 1).getPosition();
+                temp.x = lerp(temp.x, temp2.x, 0.33);                           ///////////////////////////
+                temp.y = lerp(temp.y, temp2.y, 0.33);
+                ndot->setPosition(temp);
+                dotList.push_back(*ndot);
+                dotCounter++;
+
+            }
+            else if (rng == 2)
+            {
+                ndot->setFillColor(red);
+                temp = dotList.at(2).getPosition();
+                temp2 = dotList.at(dotList.size() - 1).getPosition();
+                temp.x = lerp(temp.x, temp2.x, 0.33);                           ///////////////////////////
+                temp.y = lerp(temp.y, temp2.y, 0.33);
+                ndot->setPosition(temp);
+                dotList.push_back(*ndot);
+                dotCounter++;
+
+            }
+            else if (rng == 3)
+            {
+                ndot->setFillColor(yellow);
+                temp = dotList.at(3).getPosition();
+                temp2 = dotList.at(dotList.size() - 1).getPosition();
+                temp.x = lerp(temp.x, temp2.x, 0.33);                           ///////////////////////////
+                temp.y = lerp(temp.y, temp2.y, 0.33);
+                ndot->setPosition(temp);
+                dotList.push_back(*ndot);
+                dotCounter++;
+
+            }
+            else if (rng == 4)
+            {
+                ndot->setFillColor(green);
+                temp = dotList.at(4).getPosition();
+                temp2 = dotList.at(dotList.size() - 1).getPosition();
+                temp.x = lerp(temp.x, temp2.x, 0.33);                           ///////////////////////////
+                temp.y = lerp(temp.y, temp2.y, 0.33);
+                ndot->setPosition(temp);
+                dotList.push_back(*ndot);
+                dotCounter++;
+
+            }
+            else if (rng == 5)
+            {
+                ndot->setFillColor(orange);
+                temp = dotList.at(5).getPosition();
+                temp2 = dotList.at(dotList.size() - 1).getPosition();
+                temp.x = lerp(temp.x, temp2.x, 0.33);                           ///////////////////////////
+                temp.y = lerp(temp.y, temp2.y, 0.33);
+                ndot->setPosition(temp);
+                dotList.push_back(*ndot);
+                dotCounter++;
+
+            }
+            else
+            {
+                ndot->setFillColor(yellow);
+                temp = dotList.at(5).getPosition();
+                temp2 = dotList.at(dotList.size() - 1).getPosition();
+                temp.x = lerp(temp.x, temp2.x, 0.33);                           ///////////////////////////
+                temp.y = lerp(temp.y, temp2.y, 0.33);
+                ndot->setPosition(temp);
+                dotList.push_back(*ndot);
+                dotCounter++;
+
+            }
+        }
+
+
 
         if (event.type == Event::MouseButtonReleased)               //Controls clicks
         {
-            acceptInput = true;
+            acceptInputMouse = true;
         }
 
         if(dotCounter <3)                                           //Output text                
         { 
-            text.setString("Welcome to Chaos Game!!! \n   Choose 3 points for triangle");
+            text.setString("Welcome to Chaos Game!!! \n   Q=Triangle, W=Pentagon, E=Hexagon");
         }
-        else if (dotCounter == 3)
+        else if (dotCounter == 3)//FIX
         {
             text.setString("Select 4th point to start!");
         }
@@ -169,7 +395,7 @@ int main()
         }
         else
         {
-            text.setString("Should see pattern by now \n Click anywhere to place first dot to start again");
+            text.setString("Should see pattern by now \n Click anywhere to restart");
         }
 
         stringstream ss;
