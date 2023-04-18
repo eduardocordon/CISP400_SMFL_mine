@@ -78,17 +78,17 @@ int main()
         {
             window.close();
         }
-        if (Keyboard::isKeyPressed(Keyboard::Q))                                                    //what shape user wants
+        if (Keyboard::isKeyPressed(Keyboard::Q) && isPent == false && isHex == false)                                                    //what shape user wants
         {
             isTriangle = true;
 
         }
-        if (Keyboard::isKeyPressed(Keyboard::W))
+        if (Keyboard::isKeyPressed(Keyboard::W) && isTriangle == false && isHex == false)
         {
             isPent = true;
 
         }
-        if (Keyboard::isKeyPressed(Keyboard::E))
+        if (Keyboard::isKeyPressed(Keyboard::E) && isTriangle == false && isHex == isPent)
         {
             isHex = true;
 
