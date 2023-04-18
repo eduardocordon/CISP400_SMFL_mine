@@ -15,15 +15,10 @@ using namespace std;
 
 int main()
 {
-
-
-    //Make window
-    VideoMode vm(1920, 1080);
+    VideoMode vm(1920, 1080);                        //Make window
     RenderWindow window(vm, "Chaos Game!!!", Style::Fullscreen);
 
-    //CREATE TEXT;
-    Text text,dotText;
-
+    Text text,dotText;                               //CREATE TEXT; ,,INSTRUCTION AND COUNTER 
     Font font;
     font.loadFromFile("fonts/KOMIKAP_.ttf");        
     text.setFont(font);
@@ -33,139 +28,104 @@ int main()
     dotText = text;
     dotText.setPosition(10, 100);
 
-    int inputCounter = 0; //see how many clicks;
-    int dotCounter = 0;
+    int dotCounter = 0;                             //see how many clicks;
 
     //dots
-    RectangleShape dot1,dot2,dot3,dot4;
-    dot1.setSize( Vector2f (1,1));
+    RectangleShape dot1;                            //Object to create dots
+    dot1.setSize( Vector2f (1,1));                  //dots1 used as base for first 4 clicks
     dot1.setFillColor(Color::White);
-    dot2 = dot1;
-    dot3 = dot1;
-    dot4 = dot1;
     vector<RectangleShape> dotList;
-    int rng; //rng number
-
-    //control input;
-    bool acceptInput = true;
-
     
-    Vector2f temp,temp2;
+    int rng;                                        //rng number
 
-    //COLORS!!!//was experimentin with values, var does not == color
-    Color pink(255, 0, 0);
+    bool acceptInput = true;                       //control input;
+   
+    Vector2f temp,temp2;    
+
+    Color pink(255, 0, 0);                          //COLORS!!!//was experimentin with values, var does not == color
     Color blue(0, 0, 255);
     Color green(0, 255, 0);
 
 
 
-    while (window.isOpen())
-
+    while (window.isOpen())                                         //Frame loop starts
     {
-        //Coordinates
-        int x,y;
+        int x,y;                                                    //Coordinates for points
       
-        //TO CLOSE
         Event event;
         while (window.pollEvent(event))
         {
-            if (event.type == Event::Closed)
+            if (event.type == Event::Closed)                        //Close for red X 
             {
                 window.close();
             }
         }
         //ESC TO CLOSE
-        if (Keyboard::isKeyPressed(Keyboard::Escape))
+        if (Keyboard::isKeyPressed(Keyboard::Escape))               //ESC TO CLOSE
         {
             window.close();
         }
 
         /***************************************************************************
-        * First three inputs + 1 to start
+         First 3 inputs + 1 to start
         ***************************************************************************/
 
-        if (acceptInput && dotCounter==0)//For the first click, now need 2 more + 1;
-        {
-            if (event.type == Event::MouseButtonPressed)//CLICK
-            {
-                    x = event.mouseButton.x;        //GET X
-                    y = event.mouseButton.y;        //GET Y
-                    dot1.setPosition(x, y);         //SET DOT X,Y
-                    inputCounter++;                 //INCREMENT
-                    dotCounter++;
-                    acceptInput = false;            //AVOID 100 MPH
-            }
-        }
-        if (acceptInput && dotCounter == 1)        //AGAIN2
+        if (acceptInput && dotCounter<5)                            //Loops to get click input 4 times
         {
             if (event.type == Event::MouseButtonPressed)
             {
-                x = event.mouseButton.x;
-                y = event.mouseButton.y;
-                dot2.setPosition(x, y);
-                inputCounter++;
-                dotCounter++;
-                acceptInput = false;
+                RectangleShape* ndot = new RectangleShape;          //new dot
+                x = event.mouseButton.x;                            //GET X THEN Y
+                y = event.mouseButton.y;                           
+                *ndot = dot1;
+                ndot->setPosition(x, y);                            //SET DOT X,Y                              
+                dotCounter++;                                       //INCREMENT
+                acceptInput = false;                                //AVOID 100 MPH
+                dotList.push_back(*ndot);                           //Push in vector
             }
         }
-        if (acceptInput && dotCounter == 2)         //AGAIN3
-        {
+        if (acceptInput && dotCounter > 3000)                       //RESET PART
+        {                                                           //RESET if COUNTER>3000
             if (event.type == Event::MouseButtonPressed)
             {
-                x = event.mouseButton.x;
-                y = event.mouseButton.y;
-                dot3.setPosition(x, y);
-                inputCounter++;
-                dotCounter++;
-                acceptInput = false;
+                dotList.clear();                                    //vector emptied
+                dotCounter = 0;                                     //counter reset
+                RectangleShape* ndot = new RectangleShape;          //rest of block is same as block above
+                x = event.mouseButton.x;        
+                y = event.mouseButton.y;       
+                *ndot = dot1;
+                ndot->setPosition(x, y);                                    
+                dotCounter++;                   
+                acceptInput = false;            
+                dotList.push_back(*ndot);
             }
         }
-
-        if (acceptInput && dotCounter == 3)         //AGAIN4 AND LAST
-        {   
-            if (event.type == Event::MouseButtonPressed)
-            {
-                x = event.mouseButton.x;
-                y = event.mouseButton.y;
-                dot4.setPosition(x, y);
-                inputCounter++;
-                dotCounter++;
-                acceptInput = false;
-                dotList.push_back(dot1);
-                dotList.push_back(dot2);
-                dotList.push_back(dot3);
-                dotList.push_back(dot4);
-            }
-        }
-
         /***************************************************************************
                  Chaos part
          ***************************************************************************/
         if (dotCounter >= 4)
         {
-            RectangleShape* ndot = new RectangleShape;          //MAKES NEW EA FRAME
+            RectangleShape* ndot = new RectangleShape;                  //MAKES NEW EA FRAME
             ndot->setSize(Vector2f(1,1));
             //ndot->setFillColor(Color::White);
-            rng = rand() % (3);                                 //RANDOM 0,1,2
+            rng = rand() % (3);                                         //RANDOM 0,1,2
             if (rng == 0)
             {
                 ndot->setFillColor(pink);
-                temp = dot1.getPosition();                      //GET FIRST DOT X AND Y
-                temp2 = dotList.at(dotList.size() - 1).getPosition();//GET LAST DOT X AND Y
-                temp.x = temp.x + temp2.x;                           ///////////////////////////
+                temp = dotList.at(0).getPosition();                     //GET FIRST DOT X AND Y
+                temp2 = dotList.at(dotList.size() - 1).getPosition();   //GET LAST DOT X AND Y
+                temp.x = temp.x + temp2.x;                              ///////////////////////////
                 temp.x = temp.x / 2;
                 temp.y = temp.y + temp2.y;
-                temp.y = temp.y / 2;                                //GET MIDPOINT^^/////////////
-                ndot->setPosition(temp);                            //MIDPOINT IS NEW DOT, BACK AT THE LINE
-                dotList.push_back(*ndot);
+                temp.y = temp.y / 2;                                    
+                ndot->setPosition(temp);                                //GET MIDPOINT^^/////////////
+                dotList.push_back(*ndot);                               //MIDPOINT IS NEW DOT, BACK AT THE LINE
                 dotCounter++;
-
-
             }
-            else if (rng == 1)
+            else if (rng == 1)                                          //same for next 2 block, but index = rng
             {
                 ndot->setFillColor(blue);
-                temp = dot2.getPosition();
+                temp = dotList.at(1).getPosition();
                 temp2 = dotList.at(dotList.size() - 1).getPosition();
                 temp.x = temp.x + temp2.x;
                 temp.x = temp.x / 2;
@@ -174,12 +134,11 @@ int main()
                 ndot->setPosition(temp);
                 dotList.push_back(*ndot);
                 dotCounter++;
-
             }
             else
             {   
                 ndot->setFillColor(green);
-                temp = dot3.getPosition();
+                temp = dotList.at(2).getPosition();
                 temp2 = dotList.at(dotList.size() - 1).getPosition();
                 temp.x = temp.x + temp2.x;
                 temp.x = temp.x / 2;
@@ -188,63 +147,42 @@ int main()
                 ndot->setPosition(temp);
                 dotList.push_back(*ndot);
                 dotCounter++;
-
             }
         }
 
-
-        //makes it so theres no 100 clicks per second
-        if (event.type == Event::MouseButtonReleased)
+        if (event.type == Event::MouseButtonReleased)               //Controls clicks
         {
             acceptInput = true;
         }
 
-        //Output text;
-        if(inputCounter <4)
+        if(dotCounter <3)                                           //Output text                
         { 
             text.setString("Welcome to Chaos Game!!! \n   Choose 3 points for triangle");
         }
-        if (inputCounter == 3)
+        else if (dotCounter == 3)
         {
             text.setString("Select 4th point to start!");
+        }
+        else if (dotCounter>3 && dotCounter<3000)
+        {
+            text.setString("");
+        }
+        else
+        {
+            text.setString("Should see pattern by now \n Click anywhere to place first dot to start again");
         }
 
         stringstream ss;
         ss << "Dot counter: " << dotCounter;
         dotText.setString(ss.str());
-
-       
-        
-        
-
-        //draw
-        window.clear();
+                  
+        window.clear();                                              //draw
         window.draw(text);
         window.draw(dotText);
-        for (int i = 3;i < dotList.size();i++)      //NOTE i=3, case window already drawing dots1-4 down there
+        for (int i = 0;i < dotList.size();i++)     
         {
             window.draw(dotList.at(i));
         }
-        window.draw(dot1);
-        window.draw(dot2);
-        window.draw(dot3);
-        window.draw(dot4);
         window.display();
-
-
     }
 }
-
-
-
-
-// Run program: Ctrl + F5 or Debug > Start Without Debugging menu
-// Debug program: F5 or Debug > Start Debugging menu
-
-// Tips for Getting Started: 
-//   1. Use the Solution Explorer window to add/manage files
-//   2. Use the Team Explorer window to connect to source control
-//   3. Use the Output window to see build output and other messages
-//   4. Use the Error List window to view errors
-//   5. Go to Project > Add New Item to create new code files, or Project > Add Existing Item to add existing code files to the project
-//   6. In the future, to open this project again, go to File > Open > Project and select the .sln file
